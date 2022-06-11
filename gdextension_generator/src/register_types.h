@@ -9,7 +9,7 @@
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-//#include "ginja.h"
+#include "ginja.h"
 
 
 using namespace godot;

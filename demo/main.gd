@@ -6,8 +6,8 @@ func _ready():
 	print("Rendering template…")
 	
 	var tpl = "Hello, {{ name }} !"
-	
-	var msg = Ginja.render(tpl, {
+	var engine = Ginja.new()
+	var msg = engine.render(tpl, {
 		'name': "Nathanaël",
 	})
 	
