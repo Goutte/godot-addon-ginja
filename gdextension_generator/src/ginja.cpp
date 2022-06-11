@@ -2,6 +2,7 @@
 
 namespace godot {
 
+/*
 std::string Ginja::ws2s(const std::wstring &wstr)
 {
 //     using convert_type = std::codecvt_utf8<wchar_t>;
@@ -10,7 +11,7 @@ std::string Ginja::ws2s(const std::wstring &wstr)
 //     return converter.to_bytes(wstr);
     return "no";
 }
-
+*/
 
 std::string Ginja::gs2s(const String &gstr)
 {
@@ -55,10 +56,13 @@ String Ginja::render(const String &string_template, const Dictionary &variables)
 
 void Ginja::_bind_methods()
 {
-    ClassDB::bind_method(D_METHOD("render", "template", "variables"), &Ginja::render);
+    // FIXME
+    //ClassDB::bind_method(D_METHOD("render", "template", "variables"), &Ginja::render);
 }
 
 
 Ginja::Ginja() {}
+Ginja::~Ginja() {}
 
-}
+
+} // end godot namespace

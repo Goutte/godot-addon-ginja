@@ -1,0 +1,7 @@
+[plugin]
+
+name="InjaTemplate"
+description="Ginja is a bridge for the Inja templating engine, loosely inspired by jinja for python.  It has an easy and yet powerful template syntax with all variables, loops, conditions, includes, callbacks, and comments you need, nested and combined as you like."
+author="Goutte"
+version="1.0"
+script="plugin.gd"

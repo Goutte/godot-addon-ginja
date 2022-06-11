@@ -3,5 +3,13 @@ extends Control
 
 func _ready():
 	
-	pass # Replace with function body.
+	print("Rendering template…")
+	
+	var tpl = "Hello, {{ name }} !"
+	
+	var msg = Ginja.render(tpl, {
+		'name': "Nathanaël",
+	})
+	
+	print(msg)
 

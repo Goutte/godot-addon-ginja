@@ -38,7 +38,7 @@ Pragma 'til the `4.x` branch exists:
 The first step is always to compile the godot-cpp library:
     
     cd gdextension_generator/godot-cpp
-    scons target=debug
+    scons target=debug generate_bindings=yes
 
 
 Then we can compile our shared library:

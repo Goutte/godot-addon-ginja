@@ -1,6 +1,7 @@
 #ifndef GINJA_H
 #define GINJA_H
 
+//#include <string>
 #include <godot_cpp/core/binder_common.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/classes/json.hpp>
@@ -21,7 +22,7 @@ protected:
 	
 	// String conversion shenanigans I think I'm doing wrong
 	std::string gs2s(const String &gstr);
-	std::string ws2s(const std::wstring &wstr);
+	//std::string ws2s(const std::wstring &wstr);
 
 private:
 // 	bool initialised = false;
@@ -93,7 +94,7 @@ public:
 	String render(const String &string_template, const Dictionary &variables);
 
 	Ginja();
-	//~Ginja();
+	~Ginja();
 };
 
 } // namespace godot

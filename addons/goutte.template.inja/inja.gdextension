@@ -1,6 +1,6 @@
 [configuration]
 
-entry_symbol = "inja_init"
+entry_symbol = "initialize_ginja_extension"
 
 [libraries]
 
@@ -8,6 +8,7 @@ entry_symbol = "inja_init"
 #macos.release = "bin/libgdinja.osx.release.framework"
 #windows.debug.x86_64 = "bin/libgdinja.windows.debug.x86_64.dll"
 #windows.release.x86_64 = "bin/libgdinja.windows.release.x86_64.dll"
-linux.debug.x86_64 = "bin/libgdinja.linux.debug.x86_64.so"
-linux.release.x86_64 = "bin/libgdinja.linux.release.x86_64.so"
+#linux.debug.x86_64 = "bin/libgdinja.linux.debug.x86_64.so"
+linux.debug.x86_64 = "bin/x11/libgdinja.so"
+#linux.release.x86_64 = "bin/libgdinja.linux.release.x86_64.so"
 # Repeat for other architectures to support arm64, rv64, etc.
