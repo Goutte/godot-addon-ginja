@@ -2,28 +2,20 @@
 
 namespace godot {
 
-// Old String Conversion Shenanigans
-/*
-std::string Ginja::ws2s(const std::wstring &wstr)
-{
-//     using convert_type = std::codecvt_utf8<wchar_t>;
-//     std::wstring_convert<convert_type, wchar_t> converter;
-// 
-//     return converter.to_bytes(wstr);
-    return "no";
-}
-*/
-
 
 std::string Ginja::gs2s(const String &gstr)
 {
-	return gstr.utf8().get_data();  // hopefully, this works
-//     return godot_string_c_str(gstr);
-//     return gstr.stringify();
-    //return Ginja::ws2s(gstr.ptr());
+	return gstr.utf8().get_data();
 }
 
 
+String Ginja::s2gs(const std::string &str)
+{
+	return String::utf8(str.c_str());
+}
+
+
+// Remember: `template` is a reserved word
 String Ginja::render(const String &string_template, const Dictionary &variables)
 {
 
@@ -47,11 +39,11 @@ String Ginja::render(const String &string_template, const Dictionary &variables)
     nlohmann::json data = nlohmann::json::parse(Ginja::gs2s(gs_variables));
 
     // Now we have everything we need to ask Inja to render
-    std::string ss_return = inja::render(s_template, data);
+    std::string s_return = inja::render(s_template, data);
 
     //fprintf(stdout, "[ginja] Rendered:\n%s\n", ss_return.c_str());
 
-    return String::utf8(ss_return.c_str());
+    return Ginja::s2gs(s_return);
 }
 
 
