@@ -1,0 +1,13 @@
+[configuration]
+
+entry_symbol = "inja_init"
+
+[libraries]
+
+#macos.debug = "bin/libgdinja.osx.debug.framework"
+#macos.release = "bin/libgdinja.osx.release.framework"
+#windows.debug.x86_64 = "bin/libgdinja.windows.debug.x86_64.dll"
+#windows.release.x86_64 = "bin/libgdinja.windows.release.x86_64.dll"
+linux.debug.x86_64 = "bin/libgdinja.linux.debug.x86_64.so"
+linux.release.x86_64 = "bin/libgdinja.linux.release.x86_64.so"
+# Repeat for other architectures to support arm64, rv64, etc.
