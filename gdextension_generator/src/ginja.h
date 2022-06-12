@@ -13,25 +13,25 @@
 
 namespace godot {
 
-// Note: RefCounted will be renamed in the future (as it should), 
+// Note: RefCounted (formerly Reference) will be renamed in the future (as it should), 
 // but I don't know if it'll make Godot 4 (I hope).  Meanwhile…
 class Ginja : public RefCounted {
 	GDCLASS(Ginja, RefCounted);
 
 protected:
-	// Convention of the GdExtension API, where we'll declare the methods/consts available in Gdcript.
+	/// Convention of the GdExtension API, where we'll declare the methods/consts available in Gdcript.
 	static void _bind_methods();
 
-	// String conversion shenanigans  (UTF-8)
+	/// String conversion shenanigans  (UTF-8)
 	std::string gs2s(const String &gstr);
 	String s2gs(const std::string &str);
 
-	// Inja Environment the user may configure before rendering
-	//inja::Environment *environment_ptr = nullptr;
-// 	inja::Environment environment;
+	/// Inja Environment the user may configure before rendering
+	inja::Environment environment;
 // 	inja::Environment environment { "templates/" };
-	inja::Environment environment = inja::Environment("templates/");
-	
+// 	inja::Environment environment = inja::Environment("templates/");
+// 	inja::Environment *environment_ptr = nullptr;
+
 private:
 // 	bool initialised = false;
 // 	XRServer *xr_server = nullptr;
@@ -50,6 +50,7 @@ public:
 
 	// Functions.
     
+    // I wanna keep these snippets until I grok virtual and override
 // 	virtual StringName _get_name() const override;
 // 	virtual bool _is_initialized() const override;
 // 	virtual bool _initialize() override;
@@ -61,9 +62,30 @@ public:
 // 	virtual void _process() override;
 
 
-	// Renders the provided template using the provided variables.
-	// Main API of Ginja.
-	String render(const String &string_template, const Dictionary &variables);
+	/// Renders the provided template using the provided variables.
+	/// Main API of Ginja.
+	String render(const String& string_template, const Dictionary& variables);
+	
+	
+	/// Sets the opener and closer for template statements
+	void set_statement(const String& open, const String& close);
+
+	/// Sets the opener for template line statements
+	void set_line_statement(const String& open);
+
+	/// Sets the opener and closer for template expressions
+	void set_expression(const String& open, const String& close);
+
+	/// Sets the opener and closer for template comments
+	void set_comment(const String& open, const String& close);
+
+	/// Sets whether to remove the first newline after a block
+	void set_trim_blocks(bool trim_blocks);
+
+	/// Sets whether to strip the spaces and tabs from the start of a line to a block
+	void set_lstrip_blocks(bool lstrip_blocks);
+
+	// UNUSED: needs work upstream first
 	// Sets the path where Inja will look for template files.
 	// Used by `include` and `extend` statements, for example.
 	void set_templates_path(const String &templates_path);

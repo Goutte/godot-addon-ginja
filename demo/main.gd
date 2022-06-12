@@ -20,6 +20,18 @@ func _ready():
 	print(msg)
 	
 	
+	engine.set_trim_blocks(true)
+	engine.set_expression('(', ')')
+	tpl = """Bonjour ( name ) !"""
+	msg = engine.render(tpl, {
+		'name': ")(-)(…)(-)(",
+	})
+	print(msg)
+	
+	
+	
+	
+	
 	# See Ginja::set_templates_path  (needs work upstream)
 	#engine.set_templates_path("templates/")
 	#tpl = """{% include "welcome" %}"""
