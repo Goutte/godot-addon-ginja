@@ -21,7 +21,7 @@ opts = Variables([], ARGUMENTS)
 opts.Add(EnumVariable("target", "Compilation target", "debug", ["d", "debug", "r", "release"]))
 opts.Add(EnumVariable("platform", "Compilation platform", host_platform, ["", "windows", "x11", "linux", "osx"]))
 opts.Add(
-    EnumVariable("p", "Compilation target, alias for 'platform'", host_platform, ["", "windows", "x11", "linux", "osx"])
+    EnumVariable("p", "Compilation target, alias for 'platform'", '', ["", "windows", "x11", "linux", "osx"])
 )
 opts.Add(EnumVariable("bits", "Target platform bits", "64", ("32", "64")))
 opts.Add(BoolVariable("use_llvm", "Use the LLVM / Clang compiler", "no"))
@@ -38,6 +38,10 @@ bits = 64
 
 # Updates the environment with the option variables.
 opts.Update(env)
+
+print(env['platform'])
+print(env['p'])
+
 # Generates help for the -h scons option.
 Help(opts.GenerateHelpText(env))
 
@@ -64,7 +68,9 @@ if env["platform"] == "":
     print("No valid target platform selected.")
     quit()
 
-# For the reference:
+print("Using platform " + env["platform"])
+
+# For reference:
 # - CCFLAGS are compilation flags shared between C and C++
 # - CFLAGS are for C-specific compilation flags
 # - CXXFLAGS are for C++-specific compilation flags
@@ -100,20 +106,34 @@ elif env["platform"] in ("x11", "linux"):
 elif env["platform"] == "windows":
     env["target_path"] += "win64/"
     cpp_library += ".windows"
-    # This makes sure to keep the session environment variables on windows,
-    # that way you can run scons in a vs 2017 prompt and it will find all the required tools
-    env.Append(ENV=os.environ)
 
     env.Append(CPPDEFINES=["WIN32", "_WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS"])
-    env.Append(CCFLAGS=["-W3", "-GR"])
-    env.Append(CXXFLAGS=["-std:c++17"])
-    if env["target"] in ("debug", "d"):
-        env.Append(CPPDEFINES=["_DEBUG"])
-        env.Append(CCFLAGS=["-EHsc", "-MDd", "-ZI", "-FS"])
-        env.Append(LINKFLAGS=["-DEBUG"])
-    else:
-        env.Append(CPPDEFINES=["NDEBUG"])
-        env.Append(CCFLAGS=["-O2", "-EHsc", "-MD"])
+    
+    # Complicated shenanigans, may not work
+    if host_platform == "windows":
+        # This makes sure to keep the session environment variables on windows,
+        # that way you can run scons in a vs 2017 prompt and it will find all the required tools
+        env.Append(ENV=os.environ)
+        
+        env.Append(CCFLAGS=["-W3", "-GR"])
+        env.Append(CXXFLAGS=["-std:c++17"])
+        
+        if env["target"] in ("debug", "d"):
+            env.Append(CPPDEFINES=["_DEBUG"])
+            env.Append(CCFLAGS=["-EHsc", "-MDd", "-ZI", "-FS"])
+            env.Append(LINKFLAGS=["-DEBUG"])
+        else:
+            env.Append(CPPDEFINES=["NDEBUG"])
+            env.Append(CCFLAGS=["-O2", "-EHsc", "-MD"])
+        
+    elif host_platform == "linux":
+        #env.Append(CCFLAGS=["-W3", "-GR"])
+        env.Append(CXXFLAGS=["-std=c++17"])
+    
+    else:  # to do
+        print("Unsupported host platform, please implement support.  ;3")
+        quit()
+    
 
     if not(env["use_llvm"]):
         env.Append(CPPDEFINES=["TYPED_METHOD_BIND"])

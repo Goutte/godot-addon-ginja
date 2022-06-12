@@ -4,8 +4,10 @@
 //#include <string> // I suppose it's already there ; shouldn't we have this, though?
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/core/binder_common.hpp>
+#include <godot_cpp/classes/control.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/classes/json.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
 
 #include "json.hpp"
 #include "inja.hpp"
@@ -84,7 +86,16 @@ public:
 
 	/// Sets whether to strip the spaces and tabs from the start of a line to a block
 	void set_lstrip_blocks(bool lstrip_blocks);
+	
+	/// add_function()
+ 	void add_callback(const String& name, const int args_count, const RID& object, const String& method);
+// 	void add_callback(const String& name, const int args_count, Object* object, const String& method);
 
+
+	// FuncRef is the way to go in Godot 4
+	// Not even sure whether FuncRef is already in godot-cpp (can't find it)
+	//void add_callback(const String& name, const int args_count, FuncRef& fn);
+	
 	// UNUSED: needs work upstream first
 	// Sets the path where Inja will look for template files.
 	// Used by `include` and `extend` statements, for example.
