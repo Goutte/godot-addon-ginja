@@ -19,24 +19,50 @@ Usage
 
 ```gdscript
 var tpl = "Hello, {{ name }} !"
-var engine = Ginja.new()
-var msg = engine.render(tpl, {
+var ginja = Ginja.new()
+var msg = ginja.render(tpl, {
     'name': "Nathanaël",
 })
 
 print(msg)
 ```
 
-> This is a very simple example, but you may use loops, conditions, etc.
+> This is a very simple example, but you may use loops, conditions, comments, etc.
 > See [Inja's documentation](https://pantor.github.io/inja/) for the available features.
+
+
+You may also define your own functions for use in the templates:
+
+```gdscript
+
+func _ready():
+	var ginja = Ginja.new()
+	ginja.add_function("repeat", 2, self, "call_repeat")
+	var msg = ginja.render("{{ repeat(msg, amount) }}", {
+		'msg': "🎶",
+		'amount': 5,
+	})
+	assert(msg == "🎶🎶🎶🎶🎶")
+
+
+func call_repeat(msg: String, amount: int) -> String:
+	return msg.repeat(times)
+
+```
+
+> You HAVE TO specify the amount of arguments your custom function uses.
+> You can also define and register variadic functions, see below. (todo)
+
+
 
 
 Current Limitations
 -------------------
 
-- No plans for Windows or Mac, either feed me or help out
+- GdNative **DOES NOT WORK IN EXPORTED HTML5 BUILDS**
+- No plans for _Windows_ or _Mac_, either feed me or help out
 - Variadic user-defined functions need at least one parameter when called
-- Limited to Inja capabilities.  Eg: Inja offers no filters
+- Limited to _Inja_ capabilities.  Eg: _Inja_ offers no filters
 - `include` and `extend` _might_ not work in exported projects _(to check)_
 - Error when fetching callback `Object` from its `RID`: _(but it works)_
 
@@ -112,7 +138,7 @@ It outputs in the `addons/goutte.template.inja/bin/` directory.
 ### Demo
 
 The demo uses a symlink to get as child its sibling `addons/` directory.
-Does not hold through git, beware.   Just remake the symlink, for now.
+Might not hold through git across platforms, beware.
 
 
 ### Inja
