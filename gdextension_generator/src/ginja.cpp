@@ -32,8 +32,6 @@ String Ginja::render(const String& string_template, const Dictionary& variables)
 	// First we serialize our Dictionary using Godot's JSON.
 	const String gs_variables = jsonTool.stringify(variables);
 
-	// print_line(variables);  // we'd need to import something first, but what?
-
 	// Then we deserialize using nlohmann::json
 	const nlohmann::json data = nlohmann::json::parse(Ginja::gs2s(gs_variables));
 
@@ -61,7 +59,7 @@ String Ginja::render(const String& string_template, const Dictionary& variables)
 		sprintf(message, "Ginja failed to render(): %s", error.message.c_str());
 		ERR_PRINT(message);
 
-		return String("");
+		return String(""); // or perhaps the error message?
 	}
 
 }
@@ -112,33 +110,9 @@ void Ginja::add_callback(const String& name, const int args_count, const RID& ob
 	// Nope: ambiguous overload for ‘operator==’ (operand types are ‘const godot::String’ and ‘std::nullptr_t’)
 // 	ERR_FAIL_NULL_MSG(method, "Callback method may not be null.  We need to call it.");
     
-	//UtilityFunctions::print("Starting Ginja::add_callback()");
-	//UtilityFunctions::print(object);
-	//fprintf(stdout, "add_callback()\n");
-    
 	// TODO: sanitize method with regex ^_*[a-zA-Z][_a-zA-Z0-9]*$
 	const std::string s_name = Ginja::gs2s(name);
-// 	const std::string s_method = Ginja::gs2s(method);
-    
-//     Array a_args = Array();
-    
-    //internal::object_get_instance_from_id(object);
-//     Object* obj = ObjectDB::get_instance(object.get_id());
-//     UtilityFunctions::print(obj);
-//     UtilityFunctions::print("object->call(method, args) yields:");
-//     Variant returned = obj->call(method);
-//     UtilityFunctions::print(returned);
-    
-//     UtilityFunctions::print("object.call_yolo() yields:");
-//     Variant whaaat = obj->call_yolo();
-//     UtilityFunctions::print(whaaat);
-    //ERR_FAIL_NULL_MSG(what, "Callback object may not be null.  We need to call a method on it.");
-//     if (what == null) {
-//         
-//     }
-	//fprintf(stdout, "add_callback() object call(%s) for %s \n", s_method.c_str(), Ginja::gs2s(what).c_str());
-    
-    
+
 	environment.add_callback(s_name, args_count, [object, method](inja::Arguments& args) {
 		
 		//fprintf(stdout, "Inside Callback:\n");
@@ -148,6 +122,7 @@ void Ginja::add_callback(const String& name, const int args_count, const RID& ob
 		// Sometimes (not always, WTF) triggers:
 		// ERROR: Condition "_instance_bindings != nullptr" is true. at: set_instance_binding (core/object/object.cpp:1771)
 		Object* object_instance = ObjectDB::get_instance(object.get_id());
+		
 		//UtilityFunctions::print(object_instance);
 		
 		long args_count = args.size();
@@ -158,6 +133,7 @@ void Ginja::add_callback(const String& name, const int args_count, const RID& ob
 		}
 		
 		Variant returned = object_instance->callv(method, a_args);
+		
 		//UtilityFunctions::print("object->call(method, args) yields:");
 		//UtilityFunctions::print(returned);
 		

@@ -12,67 +12,74 @@ func _ready():
 	
 	print("Rendering template…")
 	
-	var engine = Ginja.new()
+	var ginja = Ginja.new()
 	
 	var tpl = "Hello, {{ name }} !"
-	var msg = engine.render(tpl, {
+	var msg = ginja.render(tpl, {
 		'name': "Nathanaël",
 	})
 	assertEquals("Hello, Nathanaël !", msg)
 	print(msg)
 	
-# 	engine.set_trim_blocks(true)
-# 	tpl = """{% include "templates/welcome" %}"""
-# 	msg = engine.render(tpl, {
-# 		'name': "Ægies",
-# 	})
+	ginja.set_trim_blocks(true)
+	tpl = """{% include "templates/welcome" %}"""
+	msg = ginja.render(tpl, {
+		'name': "Ægies",
+	})
 	# WOW: Inja REWRITES our templates/welcome file, adds a newline before EOF ; WTF
-# 	assertEquals("Welcome, Ægies !\n", msg)
-# 	print(msg)
-	
+	assertEquals("Welcome, Ægies !\n", msg)
+	print(msg)
 	
 	
 # 	var callback_yolo_0 = funcref(self, "call_yolo_0")
-# 	engine.add_callback("yolo", 0, callback_yolo_0)
+# 	ginja.add_callback("yolo", 0, callback_yolo_0)
 # 	tpl = """Bonjour {{ yolo() }} !"""
-# 	msg = engine.render(tpl, {
+# 	msg = ginja.render(tpl, {
 # 		'name': "RebeK",
 # 	})
 # 	print(msg)
 	
-	print(self)
-	print(get_instance_id())
+	
+	#print(self)
+	#print(get_instance_id())
 	
 	
-	engine.add_callback("yolo", 0, self, "call_yolo_0")
+	ginja.add_callback("yolo", 0, self, "call_yolo_0")
 	tpl = """Bonjour {{ yolo() }} !"""
-	msg = engine.render(tpl, {
+	msg = ginja.render(tpl, {
 		'name': "RebeK",
 	})
 	assertEquals("Bonjour YOLO !", msg)
 	print(msg)
 	
 	
-	engine.add_callback("yolo", 1, self, "call_yolo_1")
+	ginja.add_callback("yolo", 1, self, "call_yolo_1")
 	tpl = """Salud {{ yolo("amigo") }} !"""
-	msg = engine.render(tpl, {})
+	msg = ginja.render(tpl, {})
 	assertEquals("Salud AMIGO !", msg)
 	print(msg)
 	
 	
+	ginja.add_callback("repeat", 2, self, "call_repeat")
+	tpl = """{{ repeat("ha", 3) }}"""
+	msg = ginja.render(tpl, {})
+	assertEquals("hahaha", msg)
+	print(msg)
 	
-	engine.set_expression('(', ')')
+	
+	ginja.set_expression('(', ')')
 	tpl = """Bonjour ( name ) !"""
-	msg = engine.render(tpl, {
+	msg = ginja.render(tpl, {
 		'name': ")(-)(…)(-)(",
 	})
+	assertEquals("Bonjour )(-)(…)(-)( !", msg)
 	print(msg)
 	
 	
 	# See Ginja::set_templates_path  (needs work upstream)
-	#engine.set_templates_path("templates/")
+	#ginja.set_templates_path("templates/")
 	#tpl = """{% include "welcome" %}"""
-	#msg = engine.render(tpl, {
+	#msg = ginja.render(tpl, {
 	#	'name': "$€£",
 	#})
 	#print(msg)
@@ -82,22 +89,25 @@ func _ready():
 	else:
 		print("Done")
 
+
 func call_yolo_0() -> String:
-	print("SUCCESS ! CALLED YOLO() ! CHEERS ! 04:24:37")
+	#print("SUCCESS ! CALLED YOLO() ! CHEERS ! 04:24:37")
 	return "YOLO"
 
 func call_yolo_1(msg: String) -> String:
-	print("SUCCESS ! CALLED YOLO_1() ! CHEERS ! 04:24:37")
 	return msg.to_upper()
 
-	
-	
+func call_repeat(msg: String, times: int) -> String:
+	return msg.repeat(times)
+
+
+
 
 func call_yolo() -> String:
 	return "YOLO"
 
 func test_using_custom_function():
-	var engine = Ginja.new()
-	engine.add_function("yolo", self, "call_yolo")
-	var msg = engine.render("Bonjour {{ yolo() }} !", {})
+	var ginja = Ginja.new()
+	ginja.add_function("yolo", self, "call_yolo")
+	var msg = ginja.render("Bonjour {{ yolo() }} !", {})
 	assertEquals("Bonjour YOLO !", msg)

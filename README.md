@@ -1,5 +1,5 @@
 
-This is a string template engine for `gdscript`.
+This is a **string template engine** for `gdscript`.
 
 Provides access to (some of) [`Inja`](https://github.com/pantor/inja)'s features.
 
@@ -28,7 +28,7 @@ print(msg)
 ```
 
 > This is a very simple example, but you may use loops, conditions, etc.
-> See Inja's documentation for the available features.
+> See [Inja's documentation](https://pantor.github.io/inja/) for the available features.
 
 
 Current Limitations

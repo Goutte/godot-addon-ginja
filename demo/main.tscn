@@ -9,12 +9,18 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource( "1_cmerm" )
 
-[node name="ScrollContainer" type="ScrollContainer" parent="."]
-visible = false
+[node name="CenterContainer" type="CenterContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_layout_mode = 1
 
-[node name="Logs" type="VBoxContainer" parent="ScrollContainer"]
+[node name="RichTextLabel" type="RichTextLabel" parent="CenterContainer"]
+offset_left = 512.0
+offset_top = 288.0
+offset_right = 512.0
+offset_bottom = 311.0
+bbcode_enabled = true
+text = "[center]Look at the Output.[/center]"
+fit_content_height = true
