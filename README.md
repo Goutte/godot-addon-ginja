@@ -34,9 +34,9 @@ print(msg)
 Current Limitations
 -------------------
 
-- No plans for Windows or Mac, either feed me or help out.
-- Rough user-defined functions. (Strings only, awkward API that will probably change)
-- Limited to Inja capabilities.  Eg: Inja offers no filters.
+- No plans for Windows or Mac, either feed me or help out
+- Variadic user-defined functions need at least one parameter when called
+- Limited to Inja capabilities.  Eg: Inja offers no filters
 - `include` and `extend` _might_ not work in exported projects _(to check)_
 - Error when fetching callback `Object` from its `RID`: _(but it works)_
 

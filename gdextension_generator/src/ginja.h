@@ -87,7 +87,13 @@ public:
 	/// Sets whether to strip the spaces and tabs from the start of a line to a block
 	void set_lstrip_blocks(bool lstrip_blocks);
 	
-	/// add_function()
+	/// Define a custom function
+	void add_function_variadic(const String& name, const RID& object, const String& method);
+// 	void add_function_variadic(const String& name, const Ref<Object> object, const String& method);
+	
+	void add_function(const String& name, const int args_count, const RID& object, const String& method);
+ 	
+ 	/// Inja API, but the word `callback` is poorly chosen
  	void add_callback(const String& name, const int args_count, const RID& object, const String& method);
 // 	void add_callback(const String& name, const int args_count, Object* object, const String& method);
 

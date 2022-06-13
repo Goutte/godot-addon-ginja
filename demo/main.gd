@@ -67,6 +67,14 @@ func _ready():
 	print(msg)
 	
 	
+	# Support of sum() (0 params) is to implement upstream
+	ginja.add_function_variadic("sum", self, "call_sum")
+	tpl = """{{ sum(-1) }} {{ sum(1) }} {{ sum(1, 2) }}"""
+	msg = ginja.render(tpl, {})
+	assertEquals("-1 1 3", msg)
+	print(msg)
+	
+	
 	ginja.set_expression('(', ')')
 	tpl = """Bonjour ( name ) !"""
 	msg = ginja.render(tpl, {
@@ -74,6 +82,8 @@ func _ready():
 	})
 	assertEquals("Bonjour )(-)(…)(-)( !", msg)
 	print(msg)
+	
+	
 	
 	
 	# See Ginja::set_templates_path  (needs work upstream)
@@ -100,14 +110,18 @@ func call_yolo_1(msg: String) -> String:
 func call_repeat(msg: String, times: int) -> String:
 	return msg.repeat(times)
 
+func call_sum(arguments: Array) -> int:
+	var total := 0
+	for argument in arguments:
+		total += argument
+	return total
 
 
-
-func call_yolo() -> String:
-	return "YOLO"
-
-func test_using_custom_function():
-	var ginja = Ginja.new()
-	ginja.add_function("yolo", self, "call_yolo")
-	var msg = ginja.render("Bonjour {{ yolo() }} !", {})
-	assertEquals("Bonjour YOLO !", msg)
+# func call_yolo() -> String:
+# 	return "YOLO"
+# 
+# func test_using_custom_function():
+# 	var ginja = Ginja.new()
+# 	ginja.add_function("yolo", self, "call_yolo")
+# 	var msg = ginja.render("Bonjour {{ yolo() }} !", {})
+# 	assertEquals("Bonjour YOLO !", msg)

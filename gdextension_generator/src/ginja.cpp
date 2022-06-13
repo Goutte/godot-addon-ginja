@@ -101,9 +101,26 @@ void Ginja::set_lstrip_blocks(bool lstrip_blocks)
 	environment.set_lstrip_blocks(lstrip_blocks);
 }
 
+/// Adds a function supporting a variable amount of arguments.
+void Ginja::add_function_variadic(const String& name, const RID& object, const String& method)
+{
+	//Ginja::add_callback(name, 0, object, method); // meh : fix inja upstream
+	Ginja::add_callback(name, -1, object, method);
+}
+
+/// Adds a function with a specific amount of arguments.
+void Ginja::add_function(const String& name, const int args_count, const RID& object, const String& method)
+{
+	Ginja::add_callback(name, args_count, object, method);
+}
+
 
 // FuncRef appears absent from godot-cpp right now ; try again later
 // void Ginja::add_callback(const String& name, const int args_count, FuncRef& fn)
+
+
+/// `callback` is awkward, ambiguous.  But it's Inja's API, so we want to mirror it.  Prefer using add_function() and add_function_variadic()
+/// 
 void Ginja::add_callback(const String& name, const int args_count, const RID& object, const String& method)
 {
 	ERR_FAIL_NULL_MSG(object, "Callback object may not be null.  We need to call a method on it.");
@@ -113,22 +130,24 @@ void Ginja::add_callback(const String& name, const int args_count, const RID& ob
 	// TODO: sanitize method with regex ^_*[a-zA-Z][_a-zA-Z0-9]*$
 	const std::string s_name = Ginja::gs2s(name);
 
-	environment.add_callback(s_name, args_count, [object, method](inja::Arguments& args) {
+	environment.add_callback(s_name, args_count, [object, method, args_count](inja::Arguments& args) {
 		
 		//fprintf(stdout, "Inside Callback:\n");
 		//fprintf(stdout, "  Args size %ld\n", args.size());
 		//fprintf(stdout, "  Method %s\n", method.utf8().get_data());
 		
-		// Sometimes (not always, WTF) triggers:
+		// Triggers (but once):
 		// ERROR: Condition "_instance_bindings != nullptr" is true. at: set_instance_binding (core/object/object.cpp:1771)
 		Object* object_instance = ObjectDB::get_instance(object.get_id());
 		
 		//UtilityFunctions::print(object_instance);
 		
-		long args_count = args.size();
-		Array gd_args = Array();
-		for (long i = 0 ; i < args_count ; i++) {
+		auto actual_args_count = args.size();
+		auto gd_args = Array();
+		for (long i = 0 ; i < actual_args_count ; i++) {
 			auto argument = args.at(i);
+			// Instead of this fastidious type conversion,
+			// we could try through JSON instead here as well.
 			auto handled = false;
 			if (argument->is_primitive()) {
 				if (argument->is_null()) {
@@ -152,22 +171,26 @@ void Ginja::add_callback(const String& name, const int args_count, const RID& ob
 					handled = true;
 				}
 // 				@ref is_binary() -- returns whether JSON value is a binary array
-			} // TODO: else if is_structured()
+			} // TODO: else if is_structured() => is_object, is_array
 			
 			if ( ! handled) {
 				UtilityFunctions::printerr("[Ginja] Unsupported type for function argument.");
 				gd_args.append(Variant());
 			}
-			//gd_args.append(String::utf8(args.at(i)->get<std::string>().c_str()));
-// 			gd_args.append(String::utf8(args.at(0)->get<std::string>().c_str()));
 		}
 		
-		Variant returned = object_instance->callv(method, gd_args);
+		Variant returned;
+		if (-1 == args_count) {
+			returned = object_instance->call(method, gd_args);
+		} else {
+			returned = object_instance->callv(method, gd_args);
+		}
 		
-		//UtilityFunctions::print("object->call(method, args) yields:");
-		//UtilityFunctions::print(returned);
+// 		UtilityFunctions::print("object->call(method, args) yields:");
+// 		UtilityFunctions::print(returned);
 		
-		return String(returned).utf8().get_data();
+		return returned.stringify().utf8().get_data();
+// 		return String(returned.stringify()).utf8().get_data();
 	});
 }
 
@@ -189,6 +212,8 @@ void Ginja::_bind_methods()
 	ClassDB::bind_method(D_METHOD("set_trim_blocks", "trim_blocks"), &Ginja::set_trim_blocks);
 	ClassDB::bind_method(D_METHOD("set_lstrip_blocks", "lstrip_blocks"), &Ginja::set_lstrip_blocks);
 	ClassDB::bind_method(D_METHOD("add_callback", "name", "args_count", "object", "method"), &Ginja::add_callback);
+	ClassDB::bind_method(D_METHOD("add_function", "name", "args_count", "object", "method"), &Ginja::add_function);
+	ClassDB::bind_method(D_METHOD("add_function_variadic", "name", "object", "method"), &Ginja::add_function_variadic);
 	// WANTED BUT NOPE ; See https://github.com/pantor/inja/issues/193
 	//ClassDB::bind_method(D_METHOD("set_templates_path", "templates_path"), &Ginja::set_templates_path);
 }
