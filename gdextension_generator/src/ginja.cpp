@@ -131,7 +131,15 @@ void Ginja::add_callback(const String& name, const int args_count, const RID& ob
 			auto argument = args.at(i);
 			auto handled = false;
 			if (argument->is_primitive()) {
-				if (argument->is_string()) {
+				if (argument->is_null()) {
+					gd_args.append(Variant());
+					handled = true;
+				}
+				else if (argument->is_boolean()) {
+					gd_args.append(argument->get<bool>());
+					handled = true;
+				}
+				else if (argument->is_string()) {
 					gd_args.append(String::utf8(argument->get<std::string>().c_str()));
 					handled = true;
 				}
@@ -143,9 +151,7 @@ void Ginja::add_callback(const String& name, const int args_count, const RID& ob
 					gd_args.append(argument->get<double>());
 					handled = true;
 				}
-// 			@sa see @ref is_null() -- returns whether JSON value is `null`
-// 			@sa see @ref is_boolean() -- returns whether JSON value is a boolean
-// 			@sa see @ref is_binary() -- returns whether JSON value is a binary array
+// 				@ref is_binary() -- returns whether JSON value is a binary array
 			} // TODO: else if is_structured()
 			
 			if ( ! handled) {
