@@ -10,6 +10,7 @@ Motivation
 ----------
 
 - Generate tailored, efficient shaders.
+- Generate gdscript during development.
 - Generate dialogues, messages, and roleplays.
 - …
 
@@ -39,10 +40,10 @@ func _ready():
 	var ginja = Ginja.new()
 	ginja.add_function("repeat", 2, self, "call_repeat")
 	var msg = ginja.render("{{ repeat(msg, amount) }}", {
-		'msg': "🎶",
+		'msg': "🎶!",
 		'amount': 5,
 	})
-	assert(msg == "🎶🎶🎶🎶🎶")
+	assert(msg == "🎶!🎶!🎶!🎶!🎶!")
 
 
 func call_repeat(msg: String, amount: int) -> String:
@@ -55,11 +56,12 @@ func call_repeat(msg: String, amount: int) -> String:
 
 
 
-
 Current Limitations
 -------------------
 
+- **LEAKING**  (see #1)
 - GdNative **DOES NOT WORK IN EXPORTED HTML5 BUILDS**
+- Single character unicode strings (like `🎶`) behave oddly and yield empty strings sometimes
 - No plans for _Windows_ or _Mac_, either feed me or help out
 - Variadic user-defined functions need at least one parameter when called
 - Limited to _Inja_ capabilities.  Eg: _Inja_ offers no filters
@@ -71,10 +73,13 @@ ERROR: Condition "_instance_bindings != nullptr" is true.
    at: set_instance_binding (core/object/object.cpp:1771)
 ```
 > Can't figure out if it's our fault or not, for this one.
+> Idea: try `Ref<Object>` instead of `RID&`.
 
 
 Support
 -------
+
+Unsupported in HTML5 builds, beware !  See the [state of GdNative on HTML5](https://github.com/godotengine/godot-proposals/issues/147).
 
 - [x] Linux x86_64
 - [ ] Linux x86_32
@@ -83,6 +88,9 @@ Support
 - [ ] Mac x86_64
 - [ ] Mac x86_32
 - [ ] …
+
+> Shader and gdscript generation is still useful during development,
+> even if we can't rely on it at runtime because of our poor platform support.
 
 
 Install
@@ -94,7 +102,6 @@ You can also simply copy the `addons/` directory of this project into yours, it 
 > Nope, you need to build the shared libs first.  Should we add those to git?
 
 Then, enable the plugin in `Scene > Project Settings > Plugins`.
-
 
 
 
@@ -144,4 +151,23 @@ Might not hold through git across platforms, beware.
 ### Inja
 
 Inja has been copied from `3.3`, and the `#include` of `json` have been changed to use the local file: `#include "json.hpp"`.  Both are warts, and enlightened suggestions are welcome.
+
+
+Vanilla GdScript Implementation
+-------------------------------
+
+> Just thoughts on a vanilla gdscript fallback for Ginja.
+
+### ANTLR
+
+Needs `gdscript` templates and runtime first.  404 for now.
+
+### CUSTOM
+
+Would allow for easier customization of the enclosing markup tokens.
+Much more work.  Faster code, though.  (if done well)
+
+
+
+
 

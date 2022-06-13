@@ -60,12 +60,19 @@ func _ready():
 	print(msg)
 	
 	
-	ginja.add_callback("repeat", 2, self, "call_repeat")
+	ginja.add_function("repeat", 2, self, "call_repeat")
 	tpl = """{{ repeat("ha", 3) }}"""
 	msg = ginja.render(tpl, {})
 	assertEquals("hahaha", msg)
 	print(msg)
 	
+	
+	msg = ginja.render("{{ repeat(msg, amount) }}", {
+		'msg': "🎶!",
+		'amount': 5,
+	})
+	assertEquals("🎶!🎶!🎶!🎶!🎶!", msg)
+	print(msg)
 	
 	# Support of sum() (0 params) is to implement upstream
 	ginja.add_function_variadic("sum", self, "call_sum")
