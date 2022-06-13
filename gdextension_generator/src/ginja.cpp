@@ -126,13 +126,37 @@ void Ginja::add_callback(const String& name, const int args_count, const RID& ob
 		//UtilityFunctions::print(object_instance);
 		
 		long args_count = args.size();
-		Array a_args = Array();
+		Array gd_args = Array();
 		for (long i = 0 ; i < args_count ; i++) {
-			// TODO: handle more than just strings
-			a_args.append(String::utf8(args.at(0)->get<std::string>().c_str()));
+			auto argument = args.at(i);
+			auto handled = false;
+			if (argument->is_primitive()) {
+				if (argument->is_string()) {
+					gd_args.append(String::utf8(argument->get<std::string>().c_str()));
+					handled = true;
+				}
+				else if (argument->is_number_integer()) {
+					gd_args.append(argument->get<long>());
+					handled = true;
+				}
+				else if (argument->is_number_float()) {
+					gd_args.append(argument->get<double>());
+					handled = true;
+				}
+// 			@sa see @ref is_null() -- returns whether JSON value is `null`
+// 			@sa see @ref is_boolean() -- returns whether JSON value is a boolean
+// 			@sa see @ref is_binary() -- returns whether JSON value is a binary array
+			} // TODO: else if is_structured()
+			
+			if ( ! handled) {
+				UtilityFunctions::printerr("[Ginja] Unsupported type for function argument.");
+				gd_args.append(Variant());
+			}
+			//gd_args.append(String::utf8(args.at(i)->get<std::string>().c_str()));
+// 			gd_args.append(String::utf8(args.at(0)->get<std::string>().c_str()));
 		}
 		
-		Variant returned = object_instance->callv(method, a_args);
+		Variant returned = object_instance->callv(method, gd_args);
 		
 		//UtilityFunctions::print("object->call(method, args) yields:");
 		//UtilityFunctions::print(returned);
