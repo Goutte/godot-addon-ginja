@@ -1,5 +1,5 @@
 
-This is a **string template engine** for `gdscript`.
+This is a **string template engine** for **Godot 4**.
 
 Provides access to (some of) [`Inja`](https://github.com/pantor/inja)'s features.
 
@@ -52,14 +52,37 @@ func call_repeat(msg: String, amount: int) -> String:
 ```
 
 > You HAVE TO specify the amount of arguments your custom function uses.
-> You can also define and register variadic functions, see below. (todo)
 
+
+You can also define and register variadic functions, like `sum` here:
+
+
+```gdscript
+
+func _ready():
+	var ginja = Ginja.new()
+	ginja.add_function_variadic("sum", self, "call_sum")
+	var answer = ginja.render("{{ sum(a, b, c) }}", {
+		'a': 41,
+		'b': -5,
+		'c': 6,
+	})
+	assert(answer == "42")
+
+
+func call_sum(arguments: Array) -> int:
+	var total := 0
+	for argument in arguments:
+		total += argument
+	return total
+
+```
 
 
 Current Limitations
 -------------------
 
-- **LEAKING**  (see #1)
+- **LEAKING**  (see #1 — might not be us)
 - GdNative **DOES NOT WORK IN EXPORTED HTML5 BUILDS**
 - Single character unicode strings (like `🎶`) behave oddly and yield empty strings sometimes
 - No plans for _Windows_ or _Mac_, either feed me or help out
@@ -160,7 +183,7 @@ Vanilla GdScript Implementation
 
 ### ANTLR
 
-Needs `gdscript` templates and runtime first.  404 for now.
+Needs `gdscript` templates and runtime first.  Those are `404` for now.
 
 ### CUSTOM
 

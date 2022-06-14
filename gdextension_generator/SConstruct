@@ -4,8 +4,8 @@ import sys
 
 # Local dependency paths, adapt them to your setup
 godot_headers_path = "godot-cpp/godot-headers/"
-cpp_bindings_path = "godot-cpp/"
-cpp_library = "libgodot-cpp"
+godot_cpp_bindings_path = "godot-cpp/"
+godot_cpp_library = "libgodot-cpp"
 
 # Try to detect the host platform automatically.
 # This is used if no `platform` argument is passed
@@ -28,20 +28,48 @@ opts.Add(EnumVariable("platform", "Compilation platform", host_platform, ["", "w
 opts.Add(
     EnumVariable("p", "Compilation target, alias for 'platform'", '', ["", "windows", "x11", "linux", "osx"])
 )
-opts.Add(EnumVariable("bits", "Target platform bits", "64", ("32", "64")))
+opts.Add(EnumVariable("bits", "Target platform bits -- set this consistently with arch please", "64", ("32", "64")))
 opts.Add(BoolVariable("use_llvm", "Use the LLVM / Clang compiler", "no"))
 opts.Add(PathVariable("target_path", "The path where the lib is installed.", "../addons/goutte.template.inja/bin/", PathVariable.PathAccept))
 opts.Add(PathVariable("target_name", "The library name.", "libgdinja", PathVariable.PathAccept))
+
+# CPU architecture options.
+architecture_array = [
+    "",
+    "universal",
+    "x86_32",
+    "x86_64",
+    #"arm32",
+    #"arm64",
+    #"rv64",
+    #"ppc32",
+    #"ppc64",
+    #"wasm32",
+]
+architecture_aliases = {
+    "x64": "x86_64",
+    "amd64": "x86_64",
+    #"armv7": "arm32",
+    #"armv8": "arm64",
+    #"arm64v8": "arm64",
+    #"aarch64": "arm64",
+    #"rv": "rv64",
+    #"riscv": "rv64",
+    #"riscv64": "rv64",
+    #"ppcle": "ppc32",
+    #"ppc": "ppc32",
+    #"ppc64le": "ppc64",
+}
+opts.Add(EnumVariable("arch", "CPU architecture", "x86_64", architecture_array, architecture_aliases))
 
 # Updates the environment with the option variables.
 opts.Update(env)
 
 
+#bits = env['bits']  # or perhaps extract from arch
 
-bits = env['bits']
-
-print(env['platform'])
-print(env['p'])
+#print(env['platform'])
+#print(env['p'])
 
 # Generates help for the -h scons option.
 Help(opts.GenerateHelpText(env))
@@ -69,7 +97,11 @@ if env["platform"] == "":
     print("No valid target platform selected.")
     quit()
 
-print("Using platform " + env["platform"])
+print("Using platform " + env["platform"] + " for " + env["target"] + " on " + env["arch"])
+
+env["target_name"] += "." + env["platform"]
+env["target_name"] += "." + env["target"]
+env["target_name"] += "." + env["arch"]
 
 # For reference:
 # - CCFLAGS are compilation flags shared between C and C++
@@ -84,31 +116,56 @@ if env["target"] == "debug":
 
 # Check our platform specifics
 if env["platform"] == "osx":
-    env["target_path"] += "osx/"
-    cpp_library += ".osx"
-    env.Append(CCFLAGS=["-arch", "x86_64"])
-    env.Append(CXXFLAGS=["-std=c++17"])
-    env.Append(LINKFLAGS=["-arch", "x86_64"])
+    #env["target_path"] += "osx/"
+    env["target_name"] += ".framework"
+    godot_cpp_library += ".osx"
+    
+    env["CC"] = "clang"
+    env["CXX"] = "clang++"
+    env.Append(CCFLAGS=[
+        "-arch",
+        "x86_64",
+        "-fPIC",
+    ])
+    env.Append(CXXFLAGS=[
+        "-std=c++17",
+    ])
+    env.Append(LINKFLAGS=[
+        #"-arch",
+        #"x86_64",
+        "-fPIC",
+    ])
     if env["target"] in ("debug", "d"):
         env.Append(CCFLAGS=["-g", "-O2"])
     else:
         env.Append(CCFLAGS=["-g", "-O3"])
 
 elif env["platform"] in ("x11", "linux"):
-    env["target_path"] += "x11/"
-    cpp_library += ".linux"
-    env.Append(CCFLAGS=["-fPIC"])
-    env.Append(CXXFLAGS=["-std=c++17"])
+    #env["target_path"] += "x11/"
+    env["target_name"] += ".so"
+    godot_cpp_library += ".linux"
+    env.Append(CCFLAGS=[
+        "-fPIC",
+    ])
+    env.Append(CXXFLAGS=[
+        "-std=c++17",
+    ])
     if env["target"] in ("debug", "d"):
         env.Append(CCFLAGS=["-g3", "-Og"])
     else:
         env.Append(CCFLAGS=["-g", "-O3"])
 
 elif env["platform"] == "windows":
-    env["target_path"] += "win64/"
-    cpp_library += ".windows"
+    #env["target_path"] += "win64/"
+    env["target_name"] += ".dll"
+    godot_cpp_library += ".windows"
 
-    env.Append(CPPDEFINES=["WIN32", "_WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS"])
+    env.Append(CPPDEFINES=[
+        "WIN32",
+        "_WIN32",
+        "_WINDOWS",
+        "_CRT_SECURE_NO_WARNINGS",
+    ])
     
     # Complicated shenanigans, may not work
     if host_platform == "windows":
@@ -127,8 +184,25 @@ elif env["platform"] == "windows":
             env.Append(CPPDEFINES=["NDEBUG"])
             env.Append(CCFLAGS=["-O2", "-EHsc", "-MD"])
         
-    elif host_platform == "linux":
+    elif host_platform == "linux" or host_platform == "freebsd" or host_platform == "osx":
+
+        # Cross-compilation using MinGW
+        if env['arch'] == "x86_64":
+            env["CXX"] = "x86_64-w64-mingw32-g++"
+            env["AR"] = "x86_64-w64-mingw32-ar"
+            env["RANLIB"] = "x86_64-w64-mingw32-ranlib"
+            env["LINK"] = "x86_64-w64-mingw32-g++"
+        elif env['arch'] == "x86_32":
+            env["CXX"] = "i686-w64-mingw32-g++"
+            env["AR"] = "i686-w64-mingw32-ar"
+            env["RANLIB"] = "i686-w64-mingw32-ranlib"
+            env["LINK"] = "i686-w64-mingw32-g++"
+        else:
+            print("Architecture %s not supported for platform %s." % (env['arch'], env['platform']))
+            quit()
+        
         #env.Append(CCFLAGS=["-W3", "-GR"])
+        #env.Append(CCFLAGS=["-W", "-R"])
         env.Append(CXXFLAGS=["-std=c++17"])
     
     else:  # to do
@@ -140,26 +214,34 @@ elif env["platform"] == "windows":
         env.Append(CPPDEFINES=["TYPED_METHOD_BIND"])
 
 if env["target"] in ("debug", "d"):
-    cpp_library += ".debug"
+    godot_cpp_library += ".debug"
 else:
-    cpp_library += ".release"
+    godot_cpp_library += ".release"
 
-cpp_library += ".x86_" + str(bits)
+if env['arch'].endswith('32'):
+	env.Append(CCFLAGS=["-m32"])
+	env.Append(CXXFLAGS=["-m32"])
+	env.Append(LINKFLAGS=["-m32"])
+
+#godot_cpp_library += ".x86_" + str(bits)
+godot_cpp_library += "." + env['arch']
 
 # Make sure our binding library is properly included
 env.Append(CPPPATH=[
     ".",
     godot_headers_path,
-    cpp_bindings_path + "include/",
-    cpp_bindings_path + "gen/include/",
+    godot_cpp_bindings_path + "include/",
+    godot_cpp_bindings_path + "gen/include/",
 ])
 env.Append(LIBPATH=[
-    cpp_bindings_path + "bin/",
+    godot_cpp_bindings_path + "bin/",
 ])
-env.Append(LIBS=[cpp_library])
+env.Append(LIBS=[godot_cpp_library])
 
 # Tweak this if you want to use other directories to store the source code in
-env.Append(CPPPATH=["src/"])
+env.Append(CPPPATH=[
+    "src/",
+])
 sources = Glob("src/*.cpp")
 
 library = env.SharedLibrary(target=env["target_path"] + env["target_name"], source=sources)

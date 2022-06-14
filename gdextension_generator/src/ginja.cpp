@@ -27,26 +27,36 @@ String Ginja::render(const String& string_template, const Dictionary& variables)
 	// This has NOT been extensively tested. Contributions are welcome :3
 
 	// Is C++ handling the malloc()/free() for us?  Looks like it.  Neat!
+	// NOPE: our leaked instances come from here.  Something is wrong.
 	JSON jsonTool;
+	//JSON jsonTool2; // yup, doubles the leak
+	//JSON* jsonTool3; // nah, crashes
+	
+	// This ain't the same ID than the leaks, WTF is happening
+	//UtilityFunctions::print(jsonTool.get_instance_id());
 	
 	// First we serialize our Dictionary using Godot's JSON.
 	const String gs_variables = jsonTool.stringify(variables);
+	//const String gs_variables = jsonTool3->stringify(variables);
+	
+	//free(jsonTool); // nope
+	//jsonTool = NULL; // nope, not a pointer
+	//jsonTool.unreference(); // does not crash, but what am i doing?
 
-	// Then we deserialize using nlohmann::json
-	const nlohmann::json data = nlohmann::json::parse(Ginja::gs2s(gs_variables));
-
+	// Input template path is ignored when parsing strings, see
+	// https://github.com/pantor/inja/issues/193
+	//inja::Environment environment_yolo { "./templates/", "/tmp/" };
 
 	try {
+		// Then we deserialize using nlohmann::json
+		const nlohmann::json data = nlohmann::json::parse(
+			Ginja::gs2s(gs_variables)
+		);
 
-		// Input template path is ignored when parsing strings, see
-		// https://github.com/pantor/inja/issues/193
-		//inja::Environment environment_yolo { "./templates/", "/tmp/" };
-		
 		// Now we have everything we need to ask Inja to render
 		std::string s_return = environment.render(s_template, data);
     
-		// The old, quick way ; now we want to customize env
-		//std::string s_return = inja::render(s_template, data);
+		// FIXME: don't we need to free() `data` ?
         
 		//fprintf(stdout, "[ginja] Rendered:\n%s\n", s_return.c_str());
 
@@ -58,8 +68,15 @@ String Ginja::render(const String& string_template, const Dictionary& variables)
 		char message [2048]; // ¡Bad!  If Inja decides to be more verbose, we'll overflow and crash.
 		sprintf(message, "Ginja failed to render(): %s", error.message.c_str());
 		ERR_PRINT(message);
+		
+		// FIXME: don't we need to free() `message`?
 
 		return String(""); // or perhaps the error message?
+		
+	} catch (nlohmann::detail::exception e) {
+		ERR_PRINT("Ginja failed to parse the render() variables");
+		
+		return String("");
 	}
 
 }
@@ -132,11 +149,7 @@ void Ginja::add_callback(const String& name, const int args_count, const RID& ob
 
 	environment.add_callback(s_name, args_count, [object, method, args_count](inja::Arguments& args) {
 		
-		//fprintf(stdout, "Inside Callback:\n");
-		//fprintf(stdout, "  Args size %ld\n", args.size());
-		//fprintf(stdout, "  Method %s\n", method.utf8().get_data());
-		
-		// Triggers (but once):
+		// Triggers (but only once, and object_instance is returned anyway):
 		// ERROR: Condition "_instance_bindings != nullptr" is true. at: set_instance_binding (core/object/object.cpp:1771)
 		Object* object_instance = ObjectDB::get_instance(object.get_id());
 		
@@ -163,7 +176,7 @@ void Ginja::add_callback(const String& name, const int args_count, const RID& ob
 					handled = true;
 				}
 				else if (argument->is_number_integer()) {
-					gd_args.append(argument->get<long>());
+					gd_args.append(argument->get<int64_t>());
 					handled = true;
 				}
 				else if (argument->is_number_float()) {
