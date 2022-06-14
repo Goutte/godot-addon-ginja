@@ -1,0 +1,27 @@
+name: Ginja
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Working Directory
+        run: pwd
+      - name: Build
+        run: cd gdextension_generator && sh build.sh
+      - name: Test
+        run: pwd
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            addons/goutte.template.inja/inja.gdextension
+
