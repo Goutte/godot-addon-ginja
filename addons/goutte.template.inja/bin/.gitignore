@@ -1,2 +1,4 @@
 
-x11/
+*.so
+*.dll
+*.framework
