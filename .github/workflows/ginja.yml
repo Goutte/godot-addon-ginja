@@ -8,13 +8,19 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs:
+        using: 'docker'
+        image: 'gdextension_generator/Dockerfile'
+        #args:
+            #- ${{ inputs.who-to-greet }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Working Directory
         run: pwd
       - name: Build
+        # FIXME: cache our artifacts here, at least godot-cpp
         run: cd gdextension_generator && sh build.sh
       - name: Test
         run: pwd
