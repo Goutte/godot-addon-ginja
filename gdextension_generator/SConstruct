@@ -219,9 +219,9 @@ else:
     godot_cpp_library += ".release"
 
 if env['arch'].endswith('32'):
-	env.Append(CCFLAGS=["-m32"])
-	env.Append(CXXFLAGS=["-m32"])
-	env.Append(LINKFLAGS=["-m32"])
+    env.Append(CCFLAGS=["-m32"])
+    env.Append(CXXFLAGS=["-m32"])
+    env.Append(LINKFLAGS=["-m32"])
 
 #godot_cpp_library += ".x86_" + str(bits)
 godot_cpp_library += "." + env['arch']
