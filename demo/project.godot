@@ -8,6 +8,16 @@
 
 config_version=5
 
+_global_script_classes=[{
+"base": "Sprite2D",
+"class": &"GooCursor",
+"language": &"GDScript",
+"path": "res://GooCursor.gd"
+}]
+_global_script_class_icons={
+"GooCursor": ""
+}
+
 [application]
 
 config/name="Ginja Demo"

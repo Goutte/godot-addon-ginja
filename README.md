@@ -122,10 +122,21 @@ Install
 The installation is as usual, through the Assets Library. (todo)
 You can also simply copy the `addons/` directory of this project into yours, it should work.
 
-> Nope, you need to build the shared libs first.  Should we add those to git?
+> Nope, you need to build the shared libs first.  We don't want those in git.
 
 Then, enable the plugin in `Scene > Project Settings > Plugins`.
 
+
+Build
+-----
+
+Build the shared libraries:
+
+    cd gdextension_generator
+    CORES=4 TARGET=debug build.sh
+    CORES=4 TARGET=release build.sh
+
+> Want to do this using CI, but we need a custom action.
 
 
 Setup Dev Notes

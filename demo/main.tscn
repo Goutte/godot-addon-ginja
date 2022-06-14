@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cu4e0alv6mtc3"]
+[gd_scene load_steps=3 format=3 uid="uid://cu4e0alv6mtc3"]
 
 [ext_resource type="Script" path="res://main.gd" id="1_cmerm"]
+[ext_resource type="Script" path="res://GooCursor.gd" id="2_6vdj0"]
 
 [node name="Main" type="Control"]
 anchor_right = 1.0
@@ -24,3 +25,8 @@ offset_bottom = 311.0
 bbcode_enabled = true
 text = "[center]Look at the Output.[/center]"
 fit_content_height = true
+
+[node name="GooCursor" type="Sprite2D" parent="CenterContainer"]
+script = ExtResource( "2_6vdj0" )
+trail_length = 16
+pulsation_amplitude = 0.262

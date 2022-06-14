@@ -26,7 +26,6 @@ func _ready():
 	msg = ginja.render(tpl, {
 		'name': "Ægies",
 	})
-	# WOW: Inja REWRITES our templates/welcome file, adds a newline before EOF ; WTF
 	assertEquals("Welcome, Ægies !\n", msg)
 	print(msg)
 	
@@ -89,8 +88,6 @@ func _ready():
 	})
 	assertEquals("Bonjour )(-)(…)(-)( !", msg)
 	print(msg)
-	
-	
 	
 	
 	# See Ginja::set_templates_path  (needs work upstream)
