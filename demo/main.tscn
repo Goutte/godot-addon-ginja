@@ -28,5 +28,8 @@ fit_content_height = true
 
 [node name="GooCursor" type="Sprite2D" parent="CenterContainer"]
 script = ExtResource( "2_6vdj0" )
-trail_length = 16
-pulsation_amplitude = 0.262
+trail_stretch = 3.0
+pulsation_frequency = 0.1
+pulsation_amplitude = 1.0
+canvas_width = 500
+canvas_height = 500

@@ -12,6 +12,8 @@ class_name GooCursor
 @export
 var base_size := 10.0
 @export
+var trail_stretch := 1.0
+@export
 var trail_length := 32 # number of circles in the trail
 @export
 var pulsation_frequency := 2.2222
@@ -29,10 +31,12 @@ var canvas_height := 180
 
 var trail_positions := Array()
 var trail_sizes := Array()
-var trail_max_delta := base_size * 0.606 # max distance between 2 trail positions
+#var trail_max_delta := base_size * trail_stretch * 0.618 # max distance between 2 trail positions
 var current_frame := 0
 
-
+# max distance between 2 trail positions
+func get_trail_max_delta() -> float:
+	return base_size * trail_stretch * 0.618
 
 func _ready():
 	initialize_trail_positions()
@@ -91,16 +95,13 @@ func update_trail(new_head):
 	trail_positions.push_front(new_head)
 	trail_positions.pop_back()
 	for i in range(1, trail_positions.size()):
-		var forcedLength: Vector2 = Vector2.ONE * trail_max_delta * trail_sizes[i]
-		var difference: Vector2 = (
-			trail_positions[i]
-			-
-			trail_positions[i-1]
-		)
+		var forcedLength: Vector2 = Vector2.ONE * get_trail_max_delta() * trail_sizes[i]
+		var difference: Vector2 = trail_positions[i] - trail_positions[i-1]
 		trail_positions[i] = (
 			trail_positions[i-1]
-			+
-			difference.normalized() * forcedLength
+			+ 
+#			difference.normalized() * forcedLength
+			difference.limit_length(get_trail_max_delta() * trail_sizes[i])
 		)
 
 func pulsate():
