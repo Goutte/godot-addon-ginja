@@ -1,5 +1,5 @@
 
-This is a **string template engine** for **Godot 4**.
+**Ginja** is a **string template engine** for **Godot 4**.
 
 Provides access to (some of) [`Inja`](https://github.com/pantor/inja)'s features.
 
@@ -13,6 +13,17 @@ Motivation
 - Generate gdscript during development.
 - Generate dialogues, messages, and roleplays.
 - …
+
+
+Demo
+----
+
+If you have a bleeding edge Godot 4 (more recent than alpha9), you can download and run the demo in _Releases_ to see an example shader generation.
+
+![A gooey cursor using a generated shader](demo/demo/gif)
+
+> This source tree holds what's needed to build the shared libraries,
+> not the shared libraries themselves since they are binary blobs.
 
 
 Usage
@@ -85,7 +96,7 @@ Current Limitations
 - **LEAKING**  (see #1 — might not be us)
 - GdNative **DOES NOT WORK IN EXPORTED HTML5 BUILDS**
 - Single character unicode strings (like `🎶`) behave oddly and yield empty strings sometimes
-- No plans for _Windows_ or _Mac_, either feed me or help out
+- No personal plans for testing _Windows_ or _Mac_, contribs welcome
 - Variadic user-defined functions need at least one parameter when called
 - Limited to _Inja_ capabilities.  Eg: _Inja_ offers no filters
 - `include` and `extend` _might_ not work in exported projects _(to check)_
@@ -105,26 +116,28 @@ Support
 Unsupported in HTML5 builds, beware !  See the [state of GdNative on HTML5](https://github.com/godotengine/godot-proposals/issues/147).
 
 - [x] Linux x86_64
-- [ ] Linux x86_32
-- [ ] Windows x86_64
-- [ ] Windows x86_32
-- [ ] Mac x86_64
-- [ ] Mac x86_32
+- [x] Linux x86_32 _(to test)_
+- [x] Windows x86_64 _(to test)_
+- [x] Windows x86_32 _(to test)_
+- [x] Mac x86_64 _(to test)_
 - [ ] …
 
 > Shader and gdscript generation is still useful during development,
-> even if we can't rely on it at runtime because of our poor platform support.
+> even if we can't rely on it at runtime for now.
 
 
 Install
 -------
 
 The installation is as usual, through the Assets Library. (todo)
-You can also simply copy the `addons/` directory of this project into yours, it should work.
 
-> Nope, you need to build the shared libs first.  We don't want those in git.
+Meanwhile, dowload the latest Release (on the right), or clone this repository and build the shared objects.
 
-Then, enable the plugin in `Scene > Project Settings > Plugins`.
+> The shared libs were not added to this repository, since they are build artifacts.  (CI is coming)
+
+Then you can copy the `addons/` directory of this project into yours.
+
+Finally, enable the plugin in `Scene > Project Settings > Plugins`.
 
 
 Build
@@ -136,7 +149,7 @@ Build the shared libraries:
     CORES=4 TARGET=debug build.sh
     CORES=4 TARGET=release build.sh
 
-> Want to do this using CI, but we need a custom action.
+> Want to do this using CI, but we need a custom action, or to find a docker image with everything we need.
 
 
 Setup Dev Notes
@@ -175,6 +188,10 @@ Then we can compile our shared library:
 
 It outputs in the `addons/goutte.template.inja/bin/` directory.
 
+> The libs are voluminous because they are not `strip`ped, you may do so:
+
+    strip addons/goutte.template.inja/bin/libgd*
+
 
 ### Demo
 
@@ -200,8 +217,5 @@ Needs `gdscript` templates and runtime first.  Those are `404` for now.
 
 Would allow for easier customization of the enclosing markup tokens.
 Much more work.  Faster code, though.  (if done well)
-
-
-
 
 
