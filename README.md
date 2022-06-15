@@ -20,7 +20,7 @@ Demo
 
 If you have a bleeding edge Godot 4 (more recent than alpha9), you can download and run the demo in _Releases_ to see an example shader generation.
 
-![A gooey cursor using a generated shader](demo/demo/gif)
+![A gooey cursor using a generated shader](demo/demo.gif)
 
 > This source tree holds what's needed to build the shared libraries,
 > not the shared libraries themselves since they are binary blobs.
